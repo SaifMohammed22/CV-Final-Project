@@ -16,7 +16,7 @@ EMOTION_MAPPING = {
 }
 
 
-def detect_and_crop_faces(image_path, target_size=(100, 100)):
+def detect_and_crop_faces(image_path, target_size=(100, 100), return_debug=False):
     # Load OpenCV pre-trained Haar cascade for face detection
     cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
     face_cascade = cv2.CascadeClassifier(cascade_path)
@@ -24,6 +24,12 @@ def detect_and_crop_faces(image_path, target_size=(100, 100)):
     # Read image
     img = cv2.imread(image_path)
     if img is None:
+        if return_debug:
+            return None, {
+                'gray_image': None,
+                'face_box': None,
+                'used_fallback': False
+            }
         return None
 
     # Convert to grayscale
@@ -35,7 +41,14 @@ def detect_and_crop_faces(image_path, target_size=(100, 100)):
 
     if len(faces) == 0:
         # If no face is detected, resize and return the whole grayscale image
-        return cv2.resize(gray, target_size)
+        resized_gray = cv2.resize(gray, target_size)
+        if return_debug:
+            return resized_gray, {
+                'gray_image': gray,
+                'face_box': True,
+                'used_fallback': True
+            }
+        return resized_gray
 
     # Take the first detected face (x, y, width, height)
     x, y, w, h = faces[0]
@@ -43,6 +56,13 @@ def detect_and_crop_faces(image_path, target_size=(100, 100)):
 
     # Resize to a fixed size so all matrices match in PCA
     resized_face = cv2.resize(face_roi, target_size)
+
+    if return_debug:
+        return resized_face, {
+            'gray_image': gray,
+            'face_box': (int(x), int(y), int(w), int(h)),
+            'used_fallback': False
+        }
 
     return resized_face
 

@@ -24,6 +24,7 @@ class PCAFaceRecognizer:
         covariance_matrix = np.dot(phi, phi.T)
 
         # 4. Calculate eigenvalues and eigenvectors
+        # _, _, v = np.linalg.svm(covariance_matrix)
         eigenvalues, eigenvectors = np.linalg.eigh(covariance_matrix)
 
         # 5. Sort eigenvectors by eigenvalues in descending order
@@ -35,7 +36,8 @@ class PCAFaceRecognizer:
 
         # 7. Normalize the eigenfaces
         for i in range(self.eigenfaces.shape[0]):
-            self.eigenfaces[i] = self.eigenfaces[i] / np.linalg.norm(self.eigenfaces[i])
+            self.eigenfaces[i] = self.eigenfaces[i] / \
+                np.linalg.norm(self.eigenfaces[i])
 
         # Keep only the top 'n_components'
         self.eigenfaces = self.eigenfaces[:self.n_components]
